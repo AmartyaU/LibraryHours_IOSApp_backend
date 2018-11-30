@@ -39,6 +39,7 @@ def initial():
     db.session.commit()
   return json.dumps({'success': True, 'data': [post.serialize() for post in Time.query.all()]}), 201
 
+
 @app.route('/api/update/')
 def update():
   """
@@ -68,6 +69,19 @@ def get_times():
     return json.dumps({
       'success': True,
       'data': { "libraries": [post.serialize() for post in Time.query.all()] }
+    }), 200
+
+@app.route('/api/names/')
+def get():
+    """
+    Gets name all libraries
+    """
+    data = []
+    for value in times_json["locations"]:
+      data.append(value["name"])
+    return json.dumps({
+      'success': True,
+      'data': data
     }), 200
 
 if __name__ == '__main__':

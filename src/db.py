@@ -9,16 +9,17 @@ class Time(db.Model):
   __tablename__ = 'schedule'
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String, nullable=False)
+  image_url = db.Column(db.String, nullable=False)
   times = db.Column(db.PickleType, nullable=False)
   information = db.Column(db.PickleType, nullable=False)
-  # coordinates = db.Column(ARRAY(db.String, dimensions=2), nullable=False)
-  coordinates = db.Column(db.PickleType, nullable=False)
+  location = db.Column(db.PickleType, nullable=False)
 
   def __init__(self, **kwargs):
-    self.name = kwargs.get('name', "NA")
-    self.times = kwargs.get('times', ["NA", "NA", "NA", "NA", "NA", "NA", "NA"])
-    self.information = kwargs.get('information', ["NA", "NA"])
-    self.coordinates = kwargs.get('coordinates', ["NA", "NA"])
+    self.name = kwargs.get('name', "")
+    self.image_url = kwargs.get('image_url', "")
+    self.times = kwargs.get('times', ["", "", "", "", "", "", ""])
+    self.information = kwargs.get('information', [[], [], [], "", "", False])
+    self.location = kwargs.get('location', [0, 0, ""])
 
   def serialize(self):
     return {
@@ -33,14 +34,21 @@ class Time(db.Model):
             self.times[5],
             self.times[6]
           ],
-        'information':
-          {
-            "Nooks": self.information[0],
-            "Services": self.information[1]
-          },
-        'coordinates':
-          {
-            "Latitude": self.coordinates[0],
-            "Longitude": self.coordinates[1]
-          }
+         'information': 
+           {'nooks': self.information[0],
+           "services":
+               {"Electronic": self.information[1],
+                "Resources": self.information[2]},
+           "cafe":
+               {
+                "name": self.information[3],
+                "time": self.information[4],
+                "brb": self.information[5]
+               }
+           },
+        'location':
+         {
+          'coordinates': [self.location[0], self.location[1]],
+          'campus' : self.location[2]
+         }
     }
