@@ -3,13 +3,15 @@ from flask import Flask, request
 from db import db, Time
 import requests
 from threading import Timer
-# from cont file import var
+from constants import *
 
 db_filename = "todo.db"
 app = Flask(__name__)
-CORNELL_LIBRARY_TIMES_URL = "https://api3.libcal.com/api_hours_grid.php?iid=973&lid=0&format=json"
-times_json = requests.get(CORNELL_LIBRARY_TIMES_URL).json()
-# Run update once and put times_json in Update
+
+
+# Run update and initial how?
+#times help take
+#imagelink check
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % db_filename
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -19,35 +21,62 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+@app.route('/api/test/')
+def initirral():
+  """
+  Hardcoding fixed data
+  """
+  times_json = requests.get(CORNELL_LIBRARY_TIMES_URL).json()
+  for value in times_json["locations"]:
+    if value["name"] == "Manndible":
+        record = Time.query.filter_by(name="Mann Library").first()
+        info = record.information
+        info[4] = value["weeks"][0]["Sunday"]["rendered"]
+        record.information = info
+        print(record.information)
+        db.session.commit()
+        print(record.information)
+  return json.dumps({'success': True, 'data': [Time.query.filter_by(name="Mann Library").first().information]}), 200
 
-@app.route('/api/start/')
+
+
+@app.route('/api/initial/')
 def initial():
   """
   Hardcoding fixed data
   """
-  for value in times_json["locations"]:
+  for i in range(len(LIBRARY_NAMES)):
     record = Time(
-    name = value["name"],
-    times = [value["weeks"][0]["Sunday"]["rendered"], value["weeks"][0]["Monday"]["rendered"],
-    value["weeks"][0]["Tuesday"]["rendered"], value["weeks"][0]["Wednesday"]["rendered"],
-    value["weeks"][0]["Thursday"]["rendered"], value["weeks"][0]["Friday"]["rendered"],
-    value["weeks"][0]["Saturday"]["rendered"]],
-    information = ["blah", "blahblah"],
-    coordinates = [value["lat"], value["long"]]
+    name = LIBRARY_NAMES[i],
+    json_name = LIBRARY_NAMES_JSON[i],
+    image_url = IMAGE_GITHUB_URL + IMAGE_NAMES[i],
+    information = LIBRARY_INFORMATION[i],
+    location = LIBRARY_LOCATION[i]
     )
+    print(i)
     db.session.add(record)
     db.session.commit()
-  return json.dumps({'success': True, 'data': [post.serialize() for post in Time.query.all()]}), 201
-
+  return json.dumps({'success': True, 'data': [post.serialize() for post in Time.query.all()]}), 200
 
 @app.route('/api/update/')
 def update():
   """
   Update times of all libraries every 24 hours
   """
+  times_json = requests.get(CORNELL_LIBRARY_TIMES_URL).json()
   try:
+    COUNTER = 0
     for value in times_json["locations"]:
-      record = Time.query.filter_by(name=value["name"]).first()
+      # if value["name"] == "Manndible":
+      #     record = Time.query.filter_by(name="Mann Library").first()
+      #     record.information[4] = value["weeks"][0]["Sunday"]["rendered"]
+      #     db.session.commit()
+      # if value["name"] == "Amit Bhatia Libe Cafe":
+      #     record = Time.query.filter_by(name="Olin Library").first()
+      #     record.information[4] = value["weeks"][0]["Sunday"]["rendered"]
+      #     db.session.commit()
+
+      record = Time.query.filter_by(json_name=value["name"]).first()
       if record is not None:
         record.times = [value["weeks"][0]["Sunday"]["rendered"], value["weeks"][0]["Monday"]["rendered"],
         value["weeks"][0]["Tuesday"]["rendered"], value["weeks"][0]["Wednesday"]["rendered"],
@@ -58,8 +87,7 @@ def update():
   except Exception as e:
     print('Update failed: ', e)
   finally:
-    Timer(86400.0, update).start()
-
+    Timer(UPDATE_TIME, update).start()
 
 @app.route('/api/times/')
 def get_times():

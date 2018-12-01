@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import PickleType
 
 db = SQLAlchemy()
@@ -9,6 +8,7 @@ class Time(db.Model):
   __tablename__ = 'schedule'
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String, nullable=False)
+  json_name = db.Column(db.String, nullable=False)
   image_url = db.Column(db.String, nullable=False)
   times = db.Column(db.PickleType, nullable=False)
   information = db.Column(db.PickleType, nullable=False)
@@ -16,6 +16,7 @@ class Time(db.Model):
 
   def __init__(self, **kwargs):
     self.name = kwargs.get('name', "")
+    self.json_name = kwargs.get('json_name', "")
     self.image_url = kwargs.get('image_url', "")
     self.times = kwargs.get('times', ["", "", "", "", "", "", ""])
     self.information = kwargs.get('information', [[], [], [], "", "", False])
@@ -24,6 +25,7 @@ class Time(db.Model):
   def serialize(self):
     return {
         'name': self.name,
+        'image_url': self.image_url,
         'times':
           [
             self.times[0],
@@ -34,7 +36,7 @@ class Time(db.Model):
             self.times[5],
             self.times[6]
           ],
-         'information': 
+         'information':
            {'nooks': self.information[0],
            "services":
                {"Electronic": self.information[1],
