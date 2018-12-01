@@ -4,14 +4,20 @@ from db import db, Time
 import requests
 from threading import Timer
 from constants import *
+from datetime import datetime as dt, date, timedelta
 
 db_filename = "todo.db"
 app = Flask(__name__)
 
+#times help format do
 
 # Run update and initial how?
-#times help take
 #imagelink check
+
+#cafes eateries use?
+
+#hardcode all data
+#deploy
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % db_filename
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -21,22 +27,30 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-@app.route('/api/test/')
-def initirral():
+
+def make_time_format(time):
   """
-  Hardcoding fixed data
+  Takes in time string and convert it to the proper time format
   """
-  times_json = requests.get(CORNELL_LIBRARY_TIMES_URL).json()
-  for value in times_json["locations"]:
-    if value["name"] == "Manndible":
-        record = Time.query.filter_by(name="Mann Library").first()
-        info = record.information
-        info[4] = value["weeks"][0]["Sunday"]["rendered"]
-        record.information = info
-        print(record.information)
-        db.session.commit()
-        print(record.information)
-  return json.dumps({'success': True, 'data': [Time.query.filter_by(name="Mann Library").first().information]}), 200
+  time = time.replace("pm", ":00 PM")
+  time = time.replace("am", ":00 AM")
+  return time
+
+def get_all_times(weeks):
+  """
+  Gets array of times of 7 days from today
+  """
+  date_today = date.today()
+  upper_date_bound = date_today + timedelta(days=7)
+  result = []
+  for value in weeks:
+    for day in DAYS:
+      times_date = dt.strptime(value[day]["date"], "%Y-%m-%d").date()
+      if times_date >= date_today and times_date < upper_date_bound:
+        result.append(make_time_format(value[day]["rendered"]))
+  print(result)
+  return result
+
 
 
 
@@ -78,10 +92,7 @@ def update():
 
       record = Time.query.filter_by(json_name=value["name"]).first()
       if record is not None:
-        record.times = [value["weeks"][0]["Sunday"]["rendered"], value["weeks"][0]["Monday"]["rendered"],
-        value["weeks"][0]["Tuesday"]["rendered"], value["weeks"][0]["Wednesday"]["rendered"],
-        value["weeks"][0]["Thursday"]["rendered"], value["weeks"][0]["Friday"]["rendered"],
-        value["weeks"][0]["Saturday"]["rendered"]]
+        record.times = get_all_times(value["weeks"])
         db.session.commit()
     return json.dumps({'success': True, 'data': [post.serialize() for post in Time.query.all()]}), 200
   except Exception as e:
@@ -99,18 +110,29 @@ def get_times():
       'data': { "libraries": [post.serialize() for post in Time.query.all()] }
     }), 200
 
-@app.route('/api/names/')
-def get():
-    """
-    Gets name all libraries
-    """
-    data = []
-    for value in times_json["locations"]:
-      data.append(value["name"])
-    return json.dumps({
-      'success': True,
-      'data': data
-    }), 200
+@app.route('/api/test/')
+def initirral():
+  """
+  Hardcoding fixed data
+  """
+  # times_json = requests.get(CORNELL_LIBRARY_TIMES_URL).json()
+  # for value in times_json["locations"]:
+  #   if value["name"] == "Manndible":
+  #       record = Time.query.filter_by(name="Mann Library").first()
+  #       info = record.information
+  #       info[4] = value["weeks"][0]["Sunday"]["rendered"]
+  #       record.information = info
+  #       print(record.information)
+  #       db.session.commit()
+  #       print(record.information)
+
+  times_date = dt.strptime('2018-12-02', "%Y-%m-%d").date()
+  date_today = date.today()
+  print("AFSFASFasjgfhzkbdwajfabkas")
+  # d.replace(days=d.da + 7)
+  print(make_time_format("2pm - 3pm"))
+  return json.dumps({'success': True, 'data': [Time.query.filter_by(name="Mann Library").first().information]}), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
