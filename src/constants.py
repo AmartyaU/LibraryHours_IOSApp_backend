@@ -1,7 +1,7 @@
 CORNELL_LIBRARY_TIMES_URL = "https://api3.libcal.com/api_hours_grid.php?iid=973&lid=0&format=json"
 UPDATE_TIME = 86400.0
 DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-IMAGE_GITHUB_URL = "https://github.com/mjs698/library-hours-hack-challenge/tree/master/Images/"
+IMAGE_GITHUB_URL = "https://raw.githubusercontent.com/mjs698/library-hours-hack-challenge/master/Images/"
 IMAGE_NAMES = ["africana.jpg", "engineering.jpg", "law.jpg", "mann.jpeg", "music.jpg", "olin.jpeg", "uris.jpeg"]
 LIBRARY_NAMES = ["Africana Library", "Engineering Library (Carpenter Hall)", "Law Library", "Mann Library", "Music Library", "Olin Library", "Uris Library"]
 LIBRARY_NAMES_JSON = ["Africana Library", "Engineering Library", "Law Circulation", "Mann Library", "Music Library", "Olin Library", "Uris Library"]

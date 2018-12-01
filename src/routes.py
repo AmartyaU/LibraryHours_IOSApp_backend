@@ -10,17 +10,24 @@ import calendar
 db_filename = "todo.db"
 app = Flask(__name__)
 
+#:30 pm , manndible check too
+
 # Run update and initial how?
-#imagelink check
+#file structure ask
 #after deployment change?
 
+#jpg add for all
+#constants USE AND import certain constants....class?
+
+#comments write for mandible cafe changing time; formate see too
+
 #hardcode all data
-##cafes eateries use one function to update all
 #deploy
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % db_filename
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
+
 
 db.init_app(app)
 with app.app_context():
@@ -67,7 +74,6 @@ def update_cafe():
           record.information = [record.information[0], record.information[1], record.information[2], record.information[3], time, record.information[5]]
           db.session.commit()
 
-
 @app.route('/api/initial/')
 def initial():
   """
@@ -92,9 +98,7 @@ def update():
   """
   times_json = requests.get(CORNELL_LIBRARY_TIMES_URL).json()
   try:
-
     update_cafe()
-    COUNTER = 0
     for value in times_json["locations"]:
       if value["name"] == "Manndible":
           record = Time.query.filter_by(name="Mann Library").first()
