@@ -4,7 +4,7 @@ UPDATE_TIME = 86400.0
 
 IMAGE_GITHUB_URL = "https://raw.githubusercontent.com/mjs698/library-hours-hack-challenge/master/Images/"
 
-IMAGE_NAMES = ["africana.jpg", "engineering.jpg", "fine-arts.jpg", "hotel.jpg", "catherwood.jpg",
+IMAGE_NAMES = ["africana.jpg", "engineering.jpg", "fine-arts.jpg", "hotel.jpeg", "catherwood.jpg",
 "kroch.jpeg", "law.jpg", "management.jpg", "mann.jpeg", "mathematics.jpg", "music.jpg",
 "olin.jpeg", "adelson.jpg", "uris.jpeg", "veterinary.jpeg"]
 
