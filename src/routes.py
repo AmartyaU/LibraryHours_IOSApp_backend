@@ -10,18 +10,10 @@ import calendar
 db_filename = "todo.db"
 app = Flask(__name__)
 
-#:30 pm , manndible check too
+#constants USE AND import certain constants....class?
+#comments write for mandible cafe changing time; format see too
 
 # Run update and initial how?
-#file structure ask
-#after deployment change?
-
-#jpg add for all
-#constants USE AND import certain constants....class?
-
-#comments write for mandible cafe changing time; formate see too
-
-#hardcode all data
 #deploy
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % db_filename
@@ -38,9 +30,28 @@ def make_time_format(time):
   """
   Helper function that takes in time string and convert it to the proper time format
   """
-  time = time.replace("pm", ":00 PM")
-  time = time.replace("am", ":00 AM")
-  return time
+  if "-" in time:
+    time_split = time.split('-', 1)
+    time_from = time_split[0]
+    time_to = time_split[1]
+    if ":" in time_from:
+      time_from = time_from.replace("pm", " PM")
+      time_from = time_from.replace("am", " AM")
+    else:
+      time_from = time_from.replace("pm", ":00 PM")
+      time_from = time_from.replace("am", ":00 AM")
+
+    if ":" in time_to:
+      time_to = time_to.replace("pm", " PM")
+      time_to = time_to.replace("am", " AM")
+    else:
+      time_to = time_to.replace("pm", ":00 PM")
+      time_to = time_to.replace("am", ":00 AM")
+
+    return time_from+"-"+time_to
+
+  else:
+    return time
 
 def get_all_times(weeks):
   """
@@ -50,7 +61,7 @@ def get_all_times(weeks):
   upper_date_bound = date_today + timedelta(days=7)
   result = []
   for value in weeks:
-    for day in DAYS:
+    for day in value.keys():
       times_date = dt.strptime(value[day]["date"], "%Y-%m-%d").date()
       if times_date >= date_today and times_date < upper_date_bound:
         result.append(make_time_format(value[day]["rendered"]))
@@ -103,7 +114,7 @@ def update():
       if value["name"] == "Manndible":
           record = Time.query.filter_by(name="Mann Library").first()
           cafe_time = value["weeks"][0][calendar.day_name[date.today().weekday()]]["rendered"]
-          record.information = [record.information[0], record.information[1], record.information[2], record.information[3], cafe_time, record.information[5]]
+          record.information = [record.information[0], record.information[1], record.information[2], record.information[3], make_time_format(cafe_time), record.information[5]]
           db.session.commit()
 
       record = Time.query.filter_by(json_name=value["name"]).first()
