@@ -19,37 +19,36 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+def individual_time_format(individual_time):
+  """
+  Helper function that takes in split time string and converts it to the proper
+  time format
+  """
+  if ":" in individual_time:
+    individual_time = individual_time.replace("pm", " PM")
+    individual_time = individual_time.replace("am", " AM")
+  else:
+    individual_time = individual_time.replace("pm", ":00 PM")
+    individual_time = individual_time.replace("am", ":00 AM")
+  return individual_time
 
 def make_time_format(time):
   """
-  Helper function that takes in time string and converts it to the proper time format
+  Helper function that takes in time string and converts it to the proper
+  time format 4:00 PM - 11:00 PM"
   """
   if "-" in time:
     time_split = time.split('-', 1)
     time_from = time_split[0]
     time_to = time_split[1]
-    if ":" in time_from:
-      time_from = time_from.replace("pm", " PM")
-      time_from = time_from.replace("am", " AM")
-    else:
-      time_from = time_from.replace("pm", ":00 PM")
-      time_from = time_from.replace("am", ":00 AM")
-
-    if ":" in time_to:
-      time_to = time_to.replace("pm", " PM")
-      time_to = time_to.replace("am", " AM")
-    else:
-      time_to = time_to.replace("pm", ":00 PM")
-      time_to = time_to.replace("am", ":00 AM")
-
-    return time_from+"-"+time_to
-
+    return individual_time_format(time_from)+"-"+individual_time_format(time_to)
   else:
     return time
 
 def get_all_times(weeks):
   """
-  Helper function that gives array of times of 7 days from today
+  Helper function that takes in weeks from library json and gives array of
+  times of 7 days from today
   """
   date_today = date.today()
   upper_date_bound = date_today + timedelta(days=7)
@@ -63,7 +62,7 @@ def get_all_times(weeks):
 
 def update_cafe():
   """
-  Updates Cafe time
+  Updates cafe time
   """
   cafe_names = ["Amit Bhatia Libe Café"]
   cafe_names_libraries = {"Amit Bhatia Libe Café": "Olin Library"}
@@ -86,11 +85,11 @@ def initial():
   """
   for i in range(len(LIBRARY_NAMES)):
     record = Time(
-    name = LIBRARY_NAMES[i],
-    json_name = LIBRARY_NAMES_JSON[i],
-    image_url = IMAGE_GITHUB_URL + IMAGE_NAMES[i],
-    information = LIBRARY_INFORMATION[i],
-    location = LIBRARY_LOCATION[i]
+        name = LIBRARY_NAMES[i],
+        json_name = LIBRARY_NAMES_JSON[i],
+        image_url = IMAGE_GITHUB_URL + IMAGE_NAMES[i],
+        information = LIBRARY_INFORMATION[i],
+        location = LIBRARY_LOCATION[i]
     )
     db.session.add(record)
     db.session.commit()
@@ -99,7 +98,7 @@ def initial():
 @app.route('/api/hidden/update/')
 def update():
   """
-  Update times of all libraries every 24 hours
+  Update times of all libraries
   """
   times_json = requests.get(CORNELL_LIBRARY_TIMES_URL).json()
   try:
@@ -126,7 +125,7 @@ def get_times():
     """
     return json.dumps({
       'success': True,
-      'data': { "libraries": [post.serialize() for post in Time.query.all()] }
+      'data': { "libraries": [lib.serialize() for lib in Time.query.all()] }
     }), 200
 
 

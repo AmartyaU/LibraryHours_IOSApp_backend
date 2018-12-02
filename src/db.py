@@ -39,8 +39,8 @@ class Time(db.Model):
          'information':
            {'nooks': self.information[0],
            "services":
-               {"Electronic": self.information[1],
-                "Resources": self.information[2]},
+               {"electronic": self.information[1],
+                "resources": self.information[2]},
            "cafe":
                {
                 "name": self.information[3],
