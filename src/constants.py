@@ -9,7 +9,7 @@ IMAGE_NAMES = ["africana.jpg", "engineering.jpg", "fine-arts.jpg", "nestlé.jpg"
 "olin.jpeg", "adelson.jpg", "uris.jpeg", "veterinary.jpeg"]
 
 LIBRARY_NAMES = ["Africana Library", "Engineering Library", "Fine Arts Library",
-"Hotel School (Nestlé) Library", "ILR (Catherwood) Library", "Kroch Library",
+"Hotel School Library", "ILR Library", "Kroch Library",
 "Law Library", "Management Library", "Mann Library", "Mathematics Library", "Music Library",
 "Olin Library",  "Uris Library"]
 

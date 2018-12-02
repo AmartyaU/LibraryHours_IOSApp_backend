@@ -10,12 +10,6 @@ import calendar
 db_filename = "todo.db"
 app = Flask(__name__)
 
-#constants USE AND import certain constants....class?
-#comments write for mandible cafe changing time; format see too
-
-# Run update and initial how?
-#deploy
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % db_filename
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -28,7 +22,7 @@ with app.app_context():
 
 def make_time_format(time):
   """
-  Helper function that takes in time string and convert it to the proper time format
+  Helper function that takes in time string and converts it to the proper time format
   """
   if "-" in time:
     time_split = time.split('-', 1)
@@ -85,7 +79,7 @@ def update_cafe():
           record.information = [record.information[0], record.information[1], record.information[2], record.information[3], time, record.information[5]]
           db.session.commit()
 
-@app.route('/api/initial/')
+@app.route('/api/hidden/initialize/')
 def initial():
   """
   Hardcoding fixed data
@@ -100,9 +94,9 @@ def initial():
     )
     db.session.add(record)
     db.session.commit()
-  return json.dumps({'success': True, 'data': [post.serialize() for post in Time.query.all()]}), 200
+  return get_times()
 
-@app.route('/api/update/')
+@app.route('/api/hidden/update/')
 def update():
   """
   Update times of all libraries every 24 hours
@@ -111,21 +105,19 @@ def update():
   try:
     update_cafe()
     for value in times_json["locations"]:
-      if value["name"] == "Manndible":
+      if value["name"] == "Manndible": # Updating Maandible Cafe time
           record = Time.query.filter_by(name="Mann Library").first()
           cafe_time = value["weeks"][0][calendar.day_name[date.today().weekday()]]["rendered"]
           record.information = [record.information[0], record.information[1], record.information[2], record.information[3], make_time_format(cafe_time), record.information[5]]
           db.session.commit()
-
       record = Time.query.filter_by(json_name=value["name"]).first()
       if record is not None:
         record.times = get_all_times(value["weeks"])
         db.session.commit()
-    return json.dumps({'success': True, 'data': [post.serialize() for post in Time.query.all()]}), 200
+    return get_times()
   except Exception as e:
     print('Update failed: ', e)
-  finally:
-    Timer(UPDATE_TIME, update).start()
+
 
 @app.route('/api/times/')
 def get_times():
@@ -136,6 +128,7 @@ def get_times():
       'success': True,
       'data': { "libraries": [post.serialize() for post in Time.query.all()] }
     }), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
